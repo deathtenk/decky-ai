@@ -1,5 +1,6 @@
 import {
   ButtonItem,
+  TextField,
   definePlugin,
   DialogButton,
   Menu,
@@ -10,9 +11,12 @@ import {
   ServerAPI,
   showContextMenu,
   staticClasses,
+  Navigation,
+  SidebarNavigation,
 } from "decky-frontend-lib";
-import { VFC } from "react";
+import { VFC, Fragment } from "react";
 import { FaShip } from "react-icons/fa";
+import { AskQuestions } from "./components/chat-gpt-ui/AskQuestions";
 
 import logo from "../assets/logo.png";
 
@@ -38,68 +42,52 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
   // };
 
   return (
-    <PanelSection title="Panel Section">
+    <PanelSection>
+      <PanelSectionRow/>
       <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={(e) =>
-            showContextMenu(
-              <Menu label="Menu" cancelText="CAAAANCEL" onCancel={() => {}}>
-                <MenuItem onSelected={() => {}}>Item #1</MenuItem>
-                <MenuItem onSelected={() => {}}>Item #2</MenuItem>
-                <MenuItem onSelected={() => {}}>Item #3</MenuItem>
-              </Menu>,
-              e.currentTarget ?? window
-            )
-          }
-        >
-          Server says yolo
-        </ButtonItem>
-      </PanelSectionRow>
-
-      <PanelSectionRow>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <img src={logo} />
-        </div>
-      </PanelSectionRow>
-
-      <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={() => {
-            Router.CloseSideMenus();
-            Router.Navigate("/decky-plugin-test");
+        <ButtonItem 
+          layout="below" 
+          onClick={() => { 
+            Navigation.CloseSideMenus(); 
+            Navigation.Navigate("/gpt-menu");
           }}
         >
-          Router
+              ChatGPT Questions
         </ButtonItem>
       </PanelSectionRow>
     </PanelSection>
   );
 };
 
-const DeckyPluginRouterTest: VFC = () => {
+const ChatGPTMenu: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
   return (
-    <div style={{ marginTop: "50px", color: "white" }}>
-      Hello World!
-      <DialogButton onClick={() => Router.NavigateToLibraryTab()}>
-        Go to Library
-      </DialogButton>
-    </div>
+    <SidebarNavigation
+      title="Chat GPT Questions"
+      showTitle
+      pages={[
+        {
+          title: "Ask Questions",
+          content: <AskQuestions serverApi={serverApi} />,
+          route: "/gpt-menu/ask"
+        }
+      ]}/>
   );
 };
 
 export default definePlugin((serverApi: ServerAPI) => {
-  serverApi.routerHook.addRoute("/decky-plugin-test", DeckyPluginRouterTest, {
-    exact: true,
-  });
+  //serverApi.routerHook.addRoute("/chat-gpt-menu", ChatGPTMenu, {
+  //  exact: true
+  //});
+
+  serverApi.routerHook.addRoute(
+"/gpt-menu", () => (<ChatGPTMenu serverApi={serverApi}/>));
 
   return {
-    title: <div className={staticClasses.Title}>Example Plugin</div>,
+    title: <div className={staticClasses.Title}>Decky AI</div>,
     content: <Content serverAPI={serverApi} />,
     icon: <FaShip />,
     onDismount() {
-      serverApi.routerHook.removeRoute("/decky-plugin-test");
+      serverApi.routerHook.removeRoute("/gpt-menu");
     },
   };
 });

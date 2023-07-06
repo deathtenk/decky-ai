@@ -1,14 +1,12 @@
-# This is the default target, which will be built when 
+# This is the default target, which will be built when
 # you invoke make
-.PHONY: all
-all: hello
+.PHONY: all build clean
+all: build
 
 # This rule tells make how to build hello from hello.cpp
-hello:
+build:
 	mkdir -p ./out
-	gcc -o ./out/hello ./src/main.c 
+	cp ./aichat/target/x86_64-unknown-linux-gnu/release/aichat ./out/
 
-# This rule tells make to delete hello and hello.o
-.PHONY: clean 
 clean:
-	rm -f hello
+	rm -rf ./aichat/target

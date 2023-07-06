@@ -4,12 +4,19 @@ import os
 # For easy intellisense checkout the decky-loader code one directory up
 # or add the `decky-loader/plugin` path to `python.analysis.extraPaths` in `.vscode/settings.json`
 import decky_plugin
+import subprocess
+import pathlib
 
-
+PLUGIN_DIR = str(pathlib.Path(__file__).parent.resolve())
+PLUGIN_BIN_DIR = PLUGIN_DIR + "/bin"
 class Plugin:
-    # A normal method. It can be called from JavaScript using call_plugin_function("method_1", argument1, argument2)
-    async def add(self, left, right):
-        return left + right
+    async def ask_gpt(self, gameTitle, question):
+        args = [os.path.join(PLUGIN_BIN_DIR,"aichat"), 
+                os.path.join(decky_plugin.DECKY_PLUGIN_SETTINGS_DIR, "config.json"), 
+                "\"" + question + "\""]
+        result = subprocess.run(args, cwd=PLUGIN_BIN_DIR, capture_output=True, text=True)
+        return {"text" : result.stdout}
+        # return { "text" : "stdout: " + result.stdout + " stderr: " + result.stderr}
 
     # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):

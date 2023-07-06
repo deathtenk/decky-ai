@@ -55,3 +55,10 @@ out/*
 cli/
 cli/*
 cli/decky
+
+# Ignore openAI build artifacts
+
+backend/aichat/target
+
+# Ignore config file in backend
+backend/.config
