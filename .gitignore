@@ -62,3 +62,6 @@ backend/aichat/target
 
 # Ignore config file in backend
 backend/.config
+
+# Ignore py_deps
+py_deps
