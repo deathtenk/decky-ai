@@ -12,7 +12,7 @@ PLUGIN_DIR = str(pathlib.Path(__file__).parent.resolve())
 PLUGIN_BIN_DIR = PLUGIN_DIR + "/bin"
 PLUGIN_PY_MODULES_DIR = PLUGIN_DIR + "/py_deps"
 GET_APP_URL = 'https://api.steampowered.com/ICommunityService/GetApps/v1/'
-ACCESS_TOKEN = 'ed381a462f724f0434eced9ec21f5a9f'
+ACCESS_TOKEN = '<access-token>'
 
 sys.path.append(PLUGIN_PY_MODULES_DIR)
 import requests
@@ -49,7 +49,7 @@ class Plugin:
             decky_plugin.logger.info('Request failed with status code', response.status_code)
         return id
 
-    # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
+# Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):
         decky_plugin.logger.info("Hello World from Main!")
 

@@ -3,7 +3,7 @@ import { VFC, Fragment, useState, useEffect } from "react"
 
 interface AppData {
   steamid: string;
-  gameTitle: string; 
+  gameTitle: string;
 }
 
 interface GptQuestion {
@@ -14,8 +14,6 @@ interface GptQuestion {
 interface GptAnswer {
   text: string;
 }
-
-
 
 export const AskQuestions: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
     // logic for calling sidefx goes here
@@ -45,7 +43,7 @@ export const AskQuestions: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
      );
      if (result.success) {
        setAnswer(result.result);
-     } else { 
+     } else {
         setAnswer({text: "oh no!!!! result: " + result.result});
      }
    };
@@ -63,11 +61,11 @@ export const AskQuestions: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
             padding: 0px;
           }
         `}
-        </style> 
+        </style>
         <div className="questions-scoper">
             <PanelSection>
                 <PanelSectionRow>
-                    <Field 
+                    <Field
                       label={ appData?.gameTitle ? "Ask ChatGPT anything about " + appData?.gameTitle :"Ask ChatGPT anything about anything."}
                       description={
                         <TextField
@@ -87,4 +85,4 @@ export const AskQuestions: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
         </div>
      </>
     );
-} 
+}
