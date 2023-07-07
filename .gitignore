@@ -65,3 +65,4 @@ backend/.config
 
 # Ignore py_deps
 py_deps
+defaults/py_deps
