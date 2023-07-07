@@ -2,7 +2,7 @@ import {PanelSection, PanelSectionRow, quickAccessControlsClasses, Field, TextFi
 import { VFC, Fragment, useState, useEffect } from "react"
 
 interface AppData {
-  steamid: string;
+  steamid?: string;
   gameTitle: string;
 }
 
@@ -12,15 +12,16 @@ interface GptQuestion {
 }
 
 interface GptAnswer {
-  text: string;
+  question: string;
+  answer: string;
+  appData: AppData;
 }
 
 export const AskQuestions: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
     // logic for calling sidefx goes here
-   const [answer, setAnswer] = useState<GptAnswer | undefined>();
    const [question, setQuestion] = useState<GptQuestion | undefined>();
    const [appData, setAppData] = useState<AppData | undefined>();
-   //setQuestion({gameTitle: "", question: ""});
+   const [answers, setAnswers] = useState<GptAnswer[]>([]);
 
    const getSteamAppData = async () => {
     const result = await serverApi.callPluginMethod<{}, AppData>(
@@ -42,14 +43,11 @@ export const AskQuestions: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
        question ?? { gameTitle: "", question: "" }
      );
      if (result.success) {
-       setAnswer(result.result);
+        setAnswers([result?.result, ...answers]);
      } else {
-        setAnswer({text: "oh no!!!! result: " + result.result});
+        //setAnswer({text: "oh no!!!! result: " + result.result});
      }
    };
-
-   //askGPT( {gameTitle: "Skyrim",
-   //         question: "How do you purchase a horse?"} );
 
     return (
       <>
@@ -78,9 +76,13 @@ export const AskQuestions: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
                         Submit
                     </ButtonItem>
                 </PanelSectionRow>
-                <PanelSectionRow>
-                  <Field label={answer?.text ?? "nothing here but us chickens"}/>
-                </PanelSectionRow>
+                {answers.map((answer) => (
+                  <PanelSectionRow>
+                    <Field label={answer.question}>
+                      Answer: {answer.answer}
+                    </Field>
+                  </PanelSectionRow>
+                ))}
             </PanelSection>
         </div>
      </>
