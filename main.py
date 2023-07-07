@@ -28,7 +28,9 @@ class Plugin:
             args.extend(["-g", gameTitle])
         }
         result = subprocess.run(args, cwd=PLUGIN_BIN_DIR, capture_output=True, text=True)
-        return {"text" : result.stdout}
+        return {"answer" : result.stdout,
+                "question": question,
+                "appData": {"gameTitle": gameTitle}}
 
     # Function that returns running app ID, exits with status code 1 if nothing is found
     async def get_running_app_data(self):
