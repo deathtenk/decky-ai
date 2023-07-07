@@ -75,12 +75,7 @@ const ChatGPTMenu: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
 };
 
 export default definePlugin((serverApi: ServerAPI) => {
-  //serverApi.routerHook.addRoute("/chat-gpt-menu", ChatGPTMenu, {
-  //  exact: true
-  //});
-
-  serverApi.routerHook.addRoute(
-"/gpt-menu", () => (<ChatGPTMenu serverApi={serverApi}/>));
+  serverApi.routerHook.addRoute("/gpt-menu", () => (<ChatGPTMenu serverApi={serverApi}/>));
 
   return {
     title: <div className={staticClasses.Title}>Decky AI</div>,

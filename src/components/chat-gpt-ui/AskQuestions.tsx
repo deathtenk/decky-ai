@@ -1,5 +1,10 @@
 import {PanelSection, PanelSectionRow, quickAccessControlsClasses, Field, TextField, ButtonItem, ServerAPI} from "decky-frontend-lib"
-import { VFC, Fragment, useState } from "react"
+import { VFC, Fragment, useState, useEffect } from "react"
+
+interface AppData {
+  steamid?: string;
+  gameTitle: string;
+}
 
 interface GptQuestion {
    gameTitle: string;
@@ -7,14 +12,30 @@ interface GptQuestion {
 }
 
 interface GptAnswer {
-  text: string;
+  question: string;
+  answer: string;
+  appData: AppData;
 }
 
 export const AskQuestions: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
     // logic for calling sidefx goes here
-   const [answer, setAnswer] = useState<GptAnswer | undefined>();
    const [question, setQuestion] = useState<GptQuestion | undefined>();
-   //setQuestion({gameTitle: "", question: ""});
+   const [appData, setAppData] = useState<AppData | undefined>();
+   const [answers, setAnswers] = useState<GptAnswer[]>([]);
+
+   const getSteamAppData = async () => {
+    const result = await serverApi.callPluginMethod<{}, AppData>(
+      "get_running_app_data",
+      {}
+    );
+    if (result.success) {
+      setAppData(result.result);
+    }
+   }
+
+   useEffect(() => {
+    getSteamAppData();
+  }, []);
 
    const askGPT = async () => {
      const result = await serverApi.callPluginMethod<GptQuestion, GptAnswer>(
@@ -22,14 +43,11 @@ export const AskQuestions: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
        question ?? { gameTitle: "", question: "" }
      );
      if (result.success) {
-       setAnswer(result.result);
-     } else { 
-        setAnswer({text: "oh no!!!! result: " + result.result});
+        setAnswers([result?.result, ...answers]);
+     } else {
+        //setAnswer({text: "oh no!!!! result: " + result.result});
      }
    };
-
-   //askGPT( {gameTitle: "Skyrim",
-   //         question: "How do you purchase a horse?"} );
 
     return (
       <>
@@ -41,15 +59,15 @@ export const AskQuestions: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
             padding: 0px;
           }
         `}
-        </style> 
+        </style>
         <div className="questions-scoper">
             <PanelSection>
                 <PanelSectionRow>
-                    <Field 
-                      label="Ask ChatGPT Anything About <insert-game-name-here>"
+                    <Field
+                      label={ appData?.gameTitle ? "Ask ChatGPT anything about " + appData?.gameTitle :"Ask ChatGPT anything about anything."}
                       description={
                         <TextField
-                          onChange={(e) => setQuestion( { gameTitle: "Skyrim", question: e?.target.value } )}
+                          onChange={(e) => setQuestion( { gameTitle: appData?.gameTitle ?? "", question: e?.target.value } )}
                         />
                       }
                     />
@@ -58,11 +76,15 @@ export const AskQuestions: VFC<{ serverApi: ServerAPI }> = ({ serverApi }) => {
                         Submit
                     </ButtonItem>
                 </PanelSectionRow>
-                <PanelSectionRow>
-                  <Field label={answer?.text ?? "nothing here but us chickens"}/>
-                </PanelSectionRow>
+                {answers.map((answer) => (
+                  <PanelSectionRow>
+                    <Field label={answer.question}>
+                      Answer: {answer.answer}
+                    </Field>
+                  </PanelSectionRow>
+                ))}
             </PanelSection>
         </div>
      </>
     );
-} 
+}

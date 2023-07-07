@@ -14,9 +14,10 @@ use std::collections::HashMap;
 struct Args {
     #[structopt(help = "Path to the API key file")]
     config_file: String,
-
     #[structopt(help = "Message to send to the API")]
     msg: String,
+    #[structopt(short, long, help = "Title of game")]
+    game_title: Option<String>
 }
 
 #[derive(Debug, Deserialize)]
@@ -92,30 +93,13 @@ fn parse_array_index(segment: &str) -> Option<usize> {
     segment.parse().ok()
 }
 
-/*async fn ask_gpt(client: reqwest::Client, body: serde_json::Value) -> Result<serde_json::Value> {
-    let api_url = "https://api.openai.com/v1/chat/completions";
-    let mut headers = HeaderMap::new();
-    headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-    headers.insert(AUTHORIZATION, format!("Bearer {}", config.api_key).parse()?);
-    let response = client
-        .post(api_url)
-        .headers(headers)
-        .json(&body)
-        .send()
-        .await?;
-
-    let response_body = response.text().await?;
-    let json_data: serde_json::Value = serde_json::from_str(&response_body)?;
-
-    Ok(json_data)
-}*/
-
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::from_args();
     let message = &args.msg;
     let config_file = &args.config_file;
+    let game_title = &args.game_title;
 
     if message.is_empty() {
         println!("Needs a message as an argument, exiting.");
@@ -127,6 +111,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         process::exit(1);
     }
 
+    let gpt_message = match game_title {
+        Some(value) => format!("Answer the following prompt with the context that I am currently playing the game titled {}: {}", value, message),
+        None => {
+            message.to_string()
+        }
+    };
+
     let config_str = read_file(config_file)?;
     let config: Config = serde_json::from_str(&config_str)?;
 
@@ -135,7 +126,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "messages": [
             {
                 "role": "user",
-                "content": message
+                "content": gpt_message
             }
         ],
         "functions": [ {
